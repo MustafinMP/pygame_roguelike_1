@@ -1,16 +1,20 @@
 import pygame, sys, os
+from buttons import *
+from field import *
+from menu import *
 
 FPS = 60
+STEP = 64
 pygame.init()
 size = width, height = 800, 600
-screen = pygame.display.set_mode(size)
+screen = pygame.display.set_mode(size, pygame.RESIZABLE)
 screen.fill((0, 0, 0))
 clock = pygame.time.Clock()
 lst = []
 
 
 def load_image(name, colorkey=None):
-    fullname = os.path.join('data', name)
+    fullname = os.path.join('data/sprites', name)
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
         sys.exit()
@@ -25,47 +29,14 @@ def load_image(name, colorkey=None):
     return image
 
 
-class AbstractButton(pygame.sprite.Sprite):
-    def __init__(self, x, y, image, *group):
-        super().__init__(*group)
-        self.image = load_image(image)
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+class GameManager:
+    '''Главный класс всей игры.'''
 
-    def update(self, args):
-        if self.rect.collidepoint(args[0].pos):
-            # match args[0].type:
-                pass
+    def __init__(self):
+        self.game_stack = [GameField()]
 
-    def is_pressed(self):
-        pass
-
-
-class AbstractActionButton(pygame.sprite.Sprite):
-    def __init__(self, x, y, pressed_image, not_pressed_image, *group):
-        super().__init__(*group)
-        self.images = {True: load_image(pressed_image),
-                       False: load_image(not_pressed_image)
-        }
-        self.pressed = False
-        self.image = self.images[self.pressed]
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-
-    def update(self, args):
-        if self.rect.collidepoint(args[0].pos):
-            match args[0].type:
-                case pygame.MOUSEBUTTONDOWN:
-                    self.pressed = False
-                    self.image = self.images[self.pressed]
-                case pygame.MOUSEBUTTONUP:
-                    self.pressed = False
-                    self.image = self.images[self.pressed]
-
-    def is_pressed(self):
-        return self.pressed
+    def draw(self):
+        self.game_stack[-1].draw(screen)
 
 
 class Ball:
@@ -99,6 +70,7 @@ def draw(pos):
 
 
 if __name__ == '__main__':
+    manager = GameManager()
     running = True
     while running:
         screen.fill((0, 0, 0))
@@ -114,6 +86,6 @@ if __name__ == '__main__':
         #     game_stack[-1].update(event)  # обработка событий
         # game_stack[-1].update_()  # движение и прочие события
         draw(pos)
-
+        manager.draw()
         pygame.display.flip()
         clock.tick(FPS)
