@@ -5,8 +5,8 @@ from menu import *
 
 FPS = 60
 STEP = 64
+size = width, height = 1200, 720
 pygame.init()
-size = width, height = 800, 600
 screen = pygame.display.set_mode(size, pygame.RESIZABLE)
 screen.fill((0, 0, 0))
 clock = pygame.time.Clock()
@@ -47,9 +47,9 @@ class Ball:
         print(pos)
 
     def draw(self):
-        if self.pos[0] <= 20 or self.pos[0] >= 780:
+        if self.pos[0] <= 20 or self.pos[0] >= width - 20:
             self.vect_x *= -1
-        if self.pos[1] <= 20 or self.pos[1] >= 580:
+        if self.pos[1] <= 20 or self.pos[1] >= height - 20:
             self.vect_y *= -1
         self.pos[0] += self.vect_x
         self.pos[1] += self.vect_y
@@ -76,6 +76,7 @@ if __name__ == '__main__':
         screen.fill((0, 0, 0))
         pos = None
         for event in pygame.event.get():
+            size = width, height = pygame.display.get_window_size()
             if event.type == pygame.QUIT:
                 running = False
                 break
