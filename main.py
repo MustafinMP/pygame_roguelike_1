@@ -38,35 +38,16 @@ class GameManager:
     def draw(self):
         self.game_stack[-1].draw(screen)
 
+    def active_update(self, event):
+        pass
 
-class Ball:
-    def __init__(self, pos):
-        self.pos = list(pos)
-        self.vect_x = 3
-        self.vect_y = 3
-        print(pos)
-
-    def draw(self):
-        if self.pos[0] <= 20 or self.pos[0] >= width - 20:
-            self.vect_x *= -1
-        if self.pos[1] <= 20 or self.pos[1] >= height - 20:
-            self.vect_y *= -1
-        self.pos[0] += self.vect_x
-        self.pos[1] += self.vect_y
-        pygame.draw.circle(screen, (250, 0, 0), self.pos, 20)
+    def passive_update(self, size):
+        self.game_stack[-1].passive_update(size)
 
 
 def terminate():
     pygame.quit()
     sys.exit()
-
-
-def draw(pos):
-    if pos is not None:
-        ball = Ball(pos)
-        lst.append(ball)
-    for i in lst:
-        i.draw()
 
 
 if __name__ == '__main__':
@@ -75,18 +56,13 @@ if __name__ == '__main__':
     while running:
         screen.fill((0, 0, 0))
         pos = None
+        size = width, height = pygame.display.get_window_size()
         for event in pygame.event.get():
-            size = width, height = pygame.display.get_window_size()
             if event.type == pygame.QUIT:
                 running = False
                 break
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                pygame.draw.circle(screen,
-                                   (0, 0, 255), event.pos, 20)
-                pos = event.pos
-        #     game_stack[-1].update(event)  # обработка событий
-        # game_stack[-1].update_()  # движение и прочие события
-        draw(pos)
+            manager.active_update(event)
+        manager.passive_update(size)
         manager.draw()
         pygame.display.flip()
         clock.tick(FPS)

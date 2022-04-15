@@ -22,7 +22,7 @@ class AbstractActionButton(pygame.sprite.Sprite):
         super().__init__(*group)
         self.images = {True: main.load_image(pressed_image),
                        False: main.load_image(not_pressed_image)
-        }
+                       }
         self.pressed = False
         self.image = self.images[self.pressed]
         self.rect = self.image.get_rect()
@@ -41,4 +41,3 @@ class AbstractActionButton(pygame.sprite.Sprite):
 
     def is_pressed(self):
         return self.pressed
-
