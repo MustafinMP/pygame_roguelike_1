@@ -16,3 +16,5 @@ class Player(Sprite):
         self.rect.x, self.rect.y = [x // 2 - self.rect.width // 2,
                                     y // 2 - self.rect.height // 2]
 
+    def get_offset(self):
+        return [self.game_position[0] - self.rect.x, self.game_position[1] - self.rect.y - self.rect.height + main.STEP]
