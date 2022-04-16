@@ -4,6 +4,7 @@ from field import *
 from menu import *
 
 FPS = 60
+SPEED = 4
 STEP = 64
 size = width, height = 1200, 720
 pygame.init()
@@ -14,6 +15,7 @@ lst = []
 
 
 def load_image(name, colorkey=None):
+    '''Загрузка изображений для спрайтов'''
     fullname = os.path.join('data/sprites', name)
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
@@ -29,8 +31,13 @@ def load_image(name, colorkey=None):
     return image
 
 
+def terminate():
+    pygame.quit()
+    sys.exit()
+
+
 class GameManager:
-    '''Главный класс всей игры.'''
+    """Главный класс всей игры."""
 
     def __init__(self):
         self.game_stack = [GameField()]
@@ -39,15 +46,11 @@ class GameManager:
         self.game_stack[-1].draw(screen)
 
     def active_update(self, event):
-        pass
+        """Обработка действий игрока"""
+        self.game_stack[-1].active_update(event)
 
     def passive_update(self, size):
         self.game_stack[-1].passive_update(size)
-
-
-def terminate():
-    pygame.quit()
-    sys.exit()
 
 
 if __name__ == '__main__':
@@ -55,8 +58,10 @@ if __name__ == '__main__':
     running = True
     while running:
         screen.fill((0, 0, 0))
-        pos = None
+
+        # контроль текущего размера экрана для правильного отображения объектов
         size = width, height = pygame.display.get_window_size()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
