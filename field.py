@@ -39,15 +39,28 @@ class GameField:
 
     def active_update(self, event):
         match event.type:
+
             case pygame.KEYDOWN:
                 match event.key:
                     case pygame.K_UP:
                         self.player.update_vector('y', - main.SPEED)
-                        # TODO: доделать обработку других клавиш
+                    case pygame.K_DOWN:
+                        self.player.update_vector('y', main.SPEED)
+                    case pygame.K_RIGHT:
+                        self.player.update_vector('x', main.SPEED)
+                    case pygame.K_LEFT:
+                        self.player.update_vector('x', - main.SPEED)
+
             case pygame.KEYUP:
                 match event.key:
                     case pygame.K_UP:
                         self.player.stop_vector('y')
+                    case pygame.K_DOWN:
+                        self.player.stop_vector('y')
+                    case pygame.K_RIGHT:
+                        self.player.stop_vector('x')
+                    case pygame.K_LEFT:
+                        self.player.stop_vector('x')
 
     def passive_update(self, size):
         self.player.passive_update(size)
