@@ -19,6 +19,7 @@ class GameField:
         self.enemies_group = Group()
         self.walls_group = Group()
         self.floor_group = Group()
+        self.doors_group = Group()
 
         file = open('data/levels/level_1.json')
         level_data = json.load(file)
@@ -27,13 +28,18 @@ class GameField:
         self.player = player.Player(list(map(lambda i: i * main.STEP, self.player_coords)),
                                     self.player_group)
 
+        variance = self.player.get_variance()
         for floor_group in level_data['floor'].keys():
             for coords in level_data['floor'][floor_group]:
-                Floor(coords[0] * main.STEP, coords[1] * main.STEP, floor_group + '.png', self.floor_group)
+                Floor(coords[0] * main.STEP, coords[1] * main.STEP, floor_group + '.png', variance,  self.floor_group)
+
+        for wall_group in level_data['walls'].keys():
+            for coords in level_data['walls'][wall_group]:
+                Wall(coords[0] * main.STEP, coords[1] * main.STEP, wall_group + '.png', variance, self.walls_group)
 
     def draw(self, screen):
-        self.walls_group.draw(screen)
         self.floor_group.draw(screen)
+        self.walls_group.draw(screen)
         self.player_group.draw(screen)
         self.enemies_group.draw(screen)
 
@@ -50,6 +56,8 @@ class GameField:
                         self.player.update_vector('x', main.SPEED)
                     case pygame.K_LEFT:
                         self.player.update_vector('x', - main.SPEED)
+                    case pygame.K_LSHIFT:
+                        self.player.game_position['x'] += main.SPEED
 
             case pygame.KEYUP:
                 match event.key:
@@ -63,19 +71,21 @@ class GameField:
                         self.player.stop_vector('x')
 
     def passive_update(self, size):
-        self.player.passive_update(size)
+        self.player.passive_update(size, self.walls_group, self.doors_group)
         variance = self.player.get_variance()
         for sprite in self.floor_group.sprites():
+            sprite.passive_update(variance)
+        for sprite in self.walls_group.sprites():
             sprite.passive_update(variance)
 
 
 class Floor(Sprite):
-    def __init__(self, x, y, image, *group):
+    def __init__(self, x, y, image, variance, *group):
         super().__init__(*group)
         self.image = main.load_image(image)
         self.rect = self.image.get_rect()
         self.position = [x, y]
-        self.rect.x, self.rect.y = x, y
+        self.rect.x, self.rect.y = x - variance[0], y - variance[1]
 
     def passive_update(self, offset):
         self.rect.x = self.position[0] - offset[0]
@@ -83,12 +93,16 @@ class Floor(Sprite):
 
 
 class Wall(Sprite):
-    def __init__(self, x, y, image, *group):
+    def __init__(self, x, y, image, variance, *group):
         super().__init__(*group)
         self.image = main.load_image(image)
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        self.position = [x, y]
+        self.rect.x, self.rect.y = x - variance[0], y - variance[1]
+
+    def passive_update(self, offset):
+        self.rect.x = self.position[0] - offset[0]
+        self.rect.y = self.position[1] - offset[1]
 
 
 class Door(Sprite):

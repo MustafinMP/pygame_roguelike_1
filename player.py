@@ -1,4 +1,4 @@
-from pygame.sprite import Sprite, Group
+from pygame.sprite import Sprite, Group, spritecollideany
 import main
 
 
@@ -9,20 +9,33 @@ class Player(Sprite):
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = [main.width // 2 - self.rect.width // 2,
                                     main.height // 2 - self.rect.height // 2]
-        self.game_position = position
+        self.game_position = {'x': position[0],
+                              'y': position[1]}
+        # self.game_position = {'x': 68,
+        #                       'y': 12}
         self.vector_x = 0
         self.vector_y = 0
 
-    def passive_update(self, size):
+    def passive_update(self, size, walls_group, doors_group):
         x, y = size
         self.rect.x, self.rect.y = [x // 2 - self.rect.width // 2,
                                     y // 2 - self.rect.height // 2]
-        self.game_position[0] += self.vector_x
-        self.game_position[1] += self.vector_y
+        self.game_position['x'] += self.vector_x
+        for wall in walls_group:
+            wall.passive_update(self.get_variance())
+        if spritecollideany(self, walls_group):
+            self.game_position['x'] -= self.vector_x
+
+        self.game_position['y'] += self.vector_y
+
+        for wall in walls_group:
+            wall.passive_update(self.get_variance())
+        if spritecollideany(self, walls_group):
+            self.game_position['y'] -= self.vector_y
 
     def get_variance(self):
-        return [self.game_position[0] - self.rect.x,
-                self.game_position[1] - self.rect.y - self.rect.height + main.STEP]
+        return [self.game_position['x'] - self.rect.x,
+                self.game_position['y'] - self.rect.y - self.rect.height + main.STEP]
 
     def update_vector(self, key, speed):
         match key:
