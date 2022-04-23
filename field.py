@@ -73,10 +73,13 @@ class GameField:
     def passive_update(self, size):
         self.player.passive_update(size, self.walls_group, self.doors_group)
         variance = self.player.get_variance()
-        for sprite in self.floor_group.sprites():
-            sprite.passive_update(variance)
-        for sprite in self.walls_group.sprites():
-            sprite.passive_update(variance)
+
+        for floor in self.floor_group.sprites():
+            floor.passive_update(variance)
+
+        for wall in self.walls_group.sprites():
+            wall.passive_update(variance)
+
 
 
 class Floor(Sprite):
@@ -84,12 +87,12 @@ class Floor(Sprite):
         super().__init__(*group)
         self.image = main.load_image(image)
         self.rect = self.image.get_rect()
-        self.position = [x, y]
+        self.position = {'x': x, 'y': y}
         self.rect.x, self.rect.y = x - variance[0], y - variance[1]
 
     def passive_update(self, offset):
-        self.rect.x = self.position[0] - offset[0]
-        self.rect.y = self.position[1] - offset[1]
+        self.rect.x = self.position['x'] - offset[0]
+        self.rect.y = self.position['y'] - offset[1]
 
 
 class Wall(Sprite):
@@ -97,23 +100,23 @@ class Wall(Sprite):
         super().__init__(*group)
         self.image = main.load_image(image)
         self.rect = self.image.get_rect()
-        self.position = [x, y]
+        self.position = {'x': x, 'y': y}
         self.rect.x, self.rect.y = x - variance[0], y - variance[1]
 
     def passive_update(self, offset):
-        self.rect.x = self.position[0] - offset[0]
-        self.rect.y = self.position[1] - offset[1]
+        self.rect.x = self.position['x'] - offset[0]
+        self.rect.y = self.position['y'] - offset[1]
 
 
 class Door(Sprite):
-    def __init__(self, x, y, *group):
+    def __init__(self, x, y, variance, *group):
         super().__init__(*group)
         self.images = {False: main.load_image('closed_door.png'),
                        True: main.load_image('opened_door.png')}
         self.image = self.images[False]
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        self.position = {'x': x, 'y': y}
+        self.rect.x, self.rect.y = x - variance[0], y - variance[1]
         self.is_opened = False
 
     def ping_the_door(self):

@@ -1,4 +1,4 @@
-from pygame.sprite import Sprite, Group, spritecollideany
+from pygame.sprite import Sprite, Group, collide_rect, spritecollideany
 import main
 
 
@@ -11,27 +11,40 @@ class Player(Sprite):
                                     main.height // 2 - self.rect.height // 2]
         self.game_position = {'x': position[0],
                               'y': position[1]}
-        # self.game_position = {'x': 68,
-        #                       'y': 12}
         self.vector_x = 0
         self.vector_y = 0
+
+        self.hp = 10
 
     def passive_update(self, size, walls_group, doors_group):
         x, y = size
         self.rect.x, self.rect.y = [x // 2 - self.rect.width // 2,
                                     y // 2 - self.rect.height // 2]
+        x_move = True
         self.game_position['x'] += self.vector_x
         for wall in walls_group:
             wall.passive_update(self.get_variance())
         if spritecollideany(self, walls_group):
             self.game_position['x'] -= self.vector_x
+            x_move = False
+        if x_move:
+            for door in doors_group:
+                door.passive_update(self.get_variance())
+                if not door.is_opened and collide_rect(self, door):
+                    self.game_position['x'] -= self.vector_x
 
+        y_move = True
         self.game_position['y'] += self.vector_y
-
         for wall in walls_group:
             wall.passive_update(self.get_variance())
         if spritecollideany(self, walls_group):
             self.game_position['y'] -= self.vector_y
+            y_move = False
+        if y_move:
+            for door in doors_group:
+                door.passive_update(self.get_variance())
+                if not door.is_opened and collide_rect(self, door):
+                    self.game_position['y'] -= self.vector_y
 
     def get_variance(self):
         return [self.game_position['x'] - self.rect.x,
